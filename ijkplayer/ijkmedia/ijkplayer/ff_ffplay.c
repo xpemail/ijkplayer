@@ -2833,7 +2833,15 @@ void ffp_check_buffering_l(FFPlayer *ffp)
     int buf_time_percent      = -1;
     int hwm_in_bytes          = ffp->high_water_mark_in_bytes;
     int need_start_buffering  = 0;
-    int audio_time_base_valid = is->audio_st->time_base.den > 0 && is->audio_st->time_base.num > 0;
+    int audio_time_base_valid = 0;
+
+//    ALOGE("audio audio_stream = %d\n", is->audio_stream);
+//    ALOGE("video video_stream = %d\n", is->video_stream);
+    if(is->audio_st)
+        audio_time_base_valid = is->audio_st->time_base.den > 0 && is->audio_st->time_base.num > 0;
+    else
+        ALOGE("*******************************\n");
+
     int video_time_base_valid = is->video_st->time_base.den > 0 && is->video_st->time_base.num > 0;
     int64_t buf_time_position        = -1;
     if (hwm_in_ms > 0) {
