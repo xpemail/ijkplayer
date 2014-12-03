@@ -30,12 +30,11 @@
 #include "ijkplayer/ff_ffplay.h"
 #include "ijkplayer/ijkplayer_internal.h"
 
-IjkMediaPlayer *ijkmp_ios_create(int (*msg_loop)(void*))
+IjkMediaPlayer *ijkmp_ios_create(int (*msg_loop)(void*), int custom_max_buffer_size)
 {
     IjkMediaPlayer *mp = ijkmp_create(msg_loop);
     if (!mp)
         goto fail;
-
     mp->ffplayer->vout = SDL_VoutIos_CreateForGLES2();
     if (!mp->ffplayer->vout)
         goto fail;
@@ -43,6 +42,8 @@ IjkMediaPlayer *ijkmp_ios_create(int (*msg_loop)(void*))
     mp->ffplayer->aout = SDL_AoutIos_CreateForAudioUnit();
     if (!mp->ffplayer->vout)
         goto fail;
+    
+    mp->ffplayer->max_buffer_size = custom_max_buffer_size;   //by xd.5
 
     return mp;
 

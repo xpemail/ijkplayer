@@ -29,6 +29,8 @@
 
 #include "string.h"
 
+#define MAX_BUFFER_SIZE (15 * 1024 * 1024) //默认最大缓冲大小
+
 @interface IJKFFMoviePlayerController() <IJKAudioSessionDelegate>
 @end
 
@@ -73,16 +75,33 @@
 @synthesize initialPlaybackTime = _initialPlaybackTime;
 @synthesize endPlaybackTime = _endPlaybackTime;
 
+/*
+ by xd.5
+ 使用自定义最大缓冲大小设置
+    建议：
+        直播缓冲大小(0.2*1024*1024)
+        默认（点播）：(15*1024*1024)
+ */
+- (id)initWithContentURL:(NSURL *)aUrl withMaxBufferSize:(int)max_buffer_size
+{
+    return [self initWithContentURL:aUrl
+                        withOptions:nil
+                withSegmentResolver:nil
+            withMaxBufferSize:max_buffer_size];
+}
+
 - (id)initWithContentURL:(NSURL *)aUrl withOptions:(IJKFFOptions *)options
 {
     return [self initWithContentURL:aUrl
                         withOptions:options
-                withSegmentResolver:nil];
+                withSegmentResolver:nil
+            withMaxBufferSize:MAX_BUFFER_SIZE];
 }
 
 - (id)initWithContentURL:(NSURL *)aUrl
              withOptions:(IJKFFOptions *)options
      withSegmentResolver:(id<IJKMediaSegmentResolver>)segmentResolver
+       withMaxBufferSize:(int)max_buffer_size
 {
     if (aUrl == nil)
         return nil;
@@ -105,7 +124,7 @@
         _segmentResolver = segmentResolver;
 
         // init player
-        _mediaPlayer = ijkmp_ios_create(media_player_msg_loop);
+        _mediaPlayer = ijkmp_ios_create(media_player_msg_loop,max_buffer_size); //by xd.5
         _msgPool = [[IJKFFMoviePlayerMessagePool alloc] init];
 
         ijkmp_set_weak_thiz(_mediaPlayer, (__bridge_retained void *) self);
@@ -433,9 +452,12 @@
             _bufferingPosition = avmsg->arg1;
             _bufferingProgress = avmsg->arg2;
             // NSLog(@"FFP_MSG_BUFFERING_UPDATE: %d, %%%d", _bufferingPosition, _bufferingProgress);
+            [[NSNotificationCenter defaultCenter] postNotificationName:IJKMoviePlayerPlaybackUpdateBufferNotification object:@(_bufferingProgress)];
             break;
         case FFP_MSG_BUFFERING_BYTES_UPDATE:
             // NSLog(@"FFP_MSG_BUFFERING_BYTES_UPDATE: %d", avmsg->arg1);
+            _currentPlaybackRate=(avmsg->arg1)/1024.f;
+            [[NSNotificationCenter defaultCenter] postNotificationName:IJKMoviePlayerPlaybackCurrentPlayRateNotification object:@(_currentPlaybackRate)];
             break;
         case FFP_MSG_BUFFERING_TIME_UPDATE:
             _bufferingTime       = avmsg->arg1;
