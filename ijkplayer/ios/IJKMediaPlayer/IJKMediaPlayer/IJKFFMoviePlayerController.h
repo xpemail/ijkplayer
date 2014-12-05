@@ -40,7 +40,8 @@
 
 - (id)initWithContentURL:(NSURL *)aUrl
              withOptions:(IJKFFOptions *)options
-     withSegmentResolver:(id<IJKMediaSegmentResolver>)segmentResolver;
+     withSegmentResolver:(id<IJKMediaSegmentResolver>)segmentResolver
+       withMaxBufferSize:(int)max_buffer_size;
 
 - (void)prepareToPlay;
 - (void)play;
