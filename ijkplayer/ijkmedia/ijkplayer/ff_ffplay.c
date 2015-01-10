@@ -1367,6 +1367,14 @@ static int audio_decode_frame(FFPlayer *ffp)
     VideoState *is = ffp->is;
     AVPacket *pkt_temp = &is->audio_pkt_temp;
     AVPacket *pkt = &is->audio_pkt;
+    //===> by xd.5 经常因为该对象为空，导致崩溃。所以碰到这种情况直接返回。
+    if(!is->audio_st)
+    {
+        av_log(NULL, AV_LOG_WARNING, "is->audio_st is null by xd.5 \n");
+        return 0;
+        
+    }
+    //=========end========
     AVCodecContext *dec = is->audio_st->codec;
     int len1, data_size, resampled_data_size;
     int64_t dec_channel_layout;
