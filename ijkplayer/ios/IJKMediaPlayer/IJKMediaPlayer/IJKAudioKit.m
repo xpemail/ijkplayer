@@ -61,7 +61,7 @@
     }
 
     /* Set audio session to mediaplayback */
-    UInt32 sessionCategory = kAudioSessionCategory_MediaPlayback;
+    UInt32 sessionCategory = kAudioSessionCategory_AmbientSound;//kAudioSessionCategory_MediaPlayback; //解决进入驾驶模式后音乐播放器无法播放问题  by xd.5 20150401
     status = AudioSessionSetProperty(kAudioSessionProperty_AudioCategory, sizeof(sessionCategory), &sessionCategory);
     if (status != noErr) {
         NSLog(@"IJKAudioKit: AudioSessionSetProperty(kAudioSessionProperty_AudioCategory) failed (%d)", (int)status);
